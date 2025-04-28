@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Function to print usage/help
 print_help() {
   echo "Usage: $0 [options] search_string filename"
   echo "Options:"
@@ -9,24 +8,20 @@ print_help() {
   echo "  --help Show this help message"
 }
 
-# Check if --help was requested
 if [[ "$1" == "--help" ]]; then
   print_help
   exit 0
 fi
 
-# Check for minimum arguments
 if [[ $# -lt 2 ]]; then
   echo "Error: Not enough arguments."
   print_help
   exit 1
 fi
 
-# Initialize options
 show_line_number=false
 invert_match=false
 
-# Parse options
 while [[ "$1" == -* ]]; do
   case "$1" in
     -n) show_line_number=true ;;
@@ -37,44 +32,36 @@ while [[ "$1" == -* ]]; do
   shift
 done
 
-# After options, next argument should be search string
 search_string="$1"
 shift
 
-# After search string, next argument should be file name
 file="$1"
 
-# Check if search string or file is missing
 if [[ -z "$search_string" || -z "$file" ]]; then
   echo "Error: Missing search string or filename."
   print_help
   exit 1
 fi
 
-# Check if file exists
 if [[ ! -f "$file" ]]; then
   echo "Error: File '$file' not found."
   exit 1
 fi
 
-# Processing the file
 line_number=0
 while IFS= read -r line; do
   ((line_number++))
   
-  # Check match (case-insensitive)
   if echo "$line" | grep -iq "$search_string"; then
     match=true
   else
     match=false
   fi
 
-  # Handle inversion
   if $invert_match; then
     match=$(! $match)
   fi
 
-  # If matches our criteria, print
   if $match; then
     if $show_line_number; then
       echo "${line_number}:$line"
